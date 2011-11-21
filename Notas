@@ -1,0 +1,157 @@
+glInitNames();
+glPushName(int);
+glPopName();
+glLoadName(int); //Sust el elemento en el top de la pila
+	es equivalente a --> pop(); push(int)
+
+En la función dibuja() antes de crear todos los objetos
+.
+.
+.
+.
+glInitNames();
+glPushName(-1);
+.
+.
+.
+.
+dibujaGrua();
+.
+.
+.
+//dibujar las cajas
+
+for(i=0; i< nCajas; i++)
+{
+	glLoadName(i)
+	caja(i)
+}
+glLoadName(-1);
+//En este punto todos los elementos del escenario quedan etiquetados. 
+
+
+
+/***
+Por otro lado la función pick
+***/
+//Devolverá -1 si no se pincha sobre una caja 
+//en otro caso devolverá el indice de la caja
+Al clickar en un objeto, se pone su etiqueta en un buffer
+int pick (int x, int y)
+
+
+	GLint buff[512];
+	glSelectBuffer(512, buff); //Indicamos que buff es la variable a usar como buffer de selección 
+	GLint viewport[4]
+	GLint hits;
+
+	glRenderMode(GL_SELECT);
+	glMatrixMode(GL_Projection);
+	glLoadIdentity();
+	glGetIntegerV(GL_VIEWPORT, viewport);
+	
+
+
+	//Tamaño de ventana de selección de 5x5
+	gluPickMatrix(x,viewport[3]-y,5,5, viewport);
+	fijaProyeccion();
+	Dibuja();
+
+	//Tras todo esto, se deja la matriz de proyección como estaba
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	fijaProyeccion();
+	//Hits contiene el nº de objetos que han caido en la seleccion???
+	hits=glRenderMode(GL_RENDER);
+
+	
+
+//Estructura del buffer
+Por cada objeto que cae en la ventana de selección, se tienen 4 datos
+buff[0] -->Cant de etiquetas que había en la pila de nombres a la hora de dibujar en la ventana de selección (Para la practica debería ser siempre 1)
+
+buff[1] -->Zmin //Punto mas cercano al observador. Este es almacenado como entero, pero en verdad es un real que fue multiplicado por 0xFFFFFFFF con
+lo cual se debe realizar la conversión --> zmin=(float)buff[i]/0xFFFFFFFF  con esto se obtiene el nº real
+
+buff[2] -->Zmax //Punto mas lejano al observador. Realizar la misma conversión anterior
+
+buff[3] -->etiq
+
+
+
+
+///CUIDADO recorrer el buffer para buscar bien. creo que desde 0 hasta hits*4
+
+Hay que colorear cajas, engancharlas a la grua o desengancharlas. 
+
+
+
+//Colorear cajas
+clickRaton(x,y)
+{
+switch(estado)
+	case Pintar_Cajas:
+		cajaSelec=pick(x,y);
+		if(cajaSelect>-1)
+		{
+			cajas[cajaSelec].color=colorActivo; //colorActivo esta en iu.c, usando la función selección color.
+		}
+}
+
+
+//Enganchar cajas 
+Para esto vamos a hacer que la grua siempre tenga una caja enganchada, lo que se hará será mostrarla o no en función de que se haya enganchado o no. 
+
+clickRaton(x,y)
+{
+switch(estado)
+	case ENGANCHAR:
+		cajaSel=pick(x,y);
+	if(cajaSel>-1 && esta cercaDelGancho())
+		cajaEnganchada=cajaSel --> La caja selecionada ya no se muestra, se restringe en el for de dibuja (usando el indice) 
+
+
+
+//Desenganchar caja
+if(cajaEnganchada > -1 ) 
+	cajas[cajaEnganchada].x=posXGancho //Igual para la z
+	cajaEnganchada=-1;
+
+//posXGancho()
+En papel
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
