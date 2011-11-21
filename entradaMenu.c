@@ -79,6 +79,18 @@ opcion del menu. El parametro contiene el identificador de la opcion
        gluiOutput( "Se ha cambiado a poner cajas");
                
     break;
+   case PINTARCAJA:
+        estado = pintandoCajas;
+        gluiOutput( "Se ha cambiado a colorear");
+    break;
+   case ENGANCHAR:
+        estado = enganchando;
+        gluiOutput( "Se ha cambiado a enganchar");
+    break;
+   case DESENGANCHAR:
+        estado = soltando;
+        gluiOutput( "Se ha cambiado a soltar");
+    break;
        
    case SALIR:
    	  exit(0);      // Salir del programa
@@ -106,6 +118,9 @@ void CreaMenu()
     	glutAddMenuEntry("Vista 2D",DESDEARRIBA);	// Cada llamada lleva el nombre de la oopcion 
     	glutAddMenuEntry("Pasear",PASEAR);		// y el identificador que se devuelve al usarla
         glutAddMenuEntry("Colocar Caja", PONERCAJAS);
+        glutAddMenuEntry("Colorear", PINTARCAJA);
+        glutAddMenuEntry("Enganchar", ENGANCHAR);
+        glutAddMenuEntry("Soltar", DESENGANCHAR);
    	glutAddMenuEntry( "Exit", SALIR );
 
    	glutAttachMenu( GLUT_RIGHT_BUTTON );	// Indica que el boton derecho abre el menu.

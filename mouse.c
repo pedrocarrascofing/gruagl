@@ -50,31 +50,56 @@ x,y: Posicion, en coordenadas de pantalla, en que se encuantra el cursor.
 
  void clickRaton( int boton, int status, int x, int y )
 {
-     int aux;
+    int aux;
     switch ( boton )
     {
         case GLUT_LEFT_BUTTON:
-            //Poner nueva caja
-            if(estado == ponerCajas && ultCajon<MaxCajones){
-                if(status == GLUT_DOWN){
-                    leftPuls=1;
-                    ultCajon++;
-                    vCajones[ultCajon].id=ultCajon;
-                }else{
-                    leftPuls=0;
+            switch ( estado )
+            {
+             //Poner nueva caja
+            case ponerCajas:
+                if(ultCajon<MaxCajones){
+                    if(status == GLUT_DOWN){
+                        leftPuls=1;
+                        ultCajon++;
+                        vCajones[ultCajon].id=ultCajon;
+                    }else{
+                        leftPuls=0;
+                    }
+                    vCajones[ultCajon].Rx= ((x/anchoVentana-0.5)*ventanaMundoParalela) + origenXVentanaMundoParalelo;
+                    vCajones[ultCajon].Rz= ((y/altoVentana-0.5)*ventanaMundoParalela)* altoVentana /anchoVentana- origenYVentanaMundoParalelo;                    
+                    glutPostRedisplay();
                 }
-                vCajones[ultCajon].Rx= ((x/anchoVentana-0.5)*ventanaMundoParalela) + origenXVentanaMundoParalelo;
-                vCajones[ultCajon].Rz= ((y/altoVentana-0.5)*ventanaMundoParalela)* altoVentana /anchoVentana- origenYVentanaMundoParalelo;
-                //printf("\n %f, %f \n",cajon.Rx,cajon.Rz);
-                glutPostRedisplay();
-            }
-            else if(estado != ponerCajas)
+            break;
+
+            // Pintar la que se seleccione con el raton
+            case pintandoCajas:
+                aux=pick(x,y);
+                if(aux>-1 && aux<MaxCajones)
+                    vCajones[aux].color=colorActivo;
+            break;
+
+            // Enganchar la caja que se seleccione con el raton
+            case enganchando:
+            break;
+
+            // Desenganchar la caja si se encuentra alguan enganchada
+            case soltando:
+            break;
+
+            //Seleccionar Cajas
+                /*
+            else if(status == GLUT_DOWN && estado != ponerCajas)
             {
                 aux=pick(x,y);
                 if(aux>-1 && aux<MaxCajones)
                     vCajones[aux].id=-1;
             }
-        break;
+            */
+
+            } //End switch interno
+
+        break; // End case GLUT_LEFT_BUTTON:
     }
 }
 
@@ -90,9 +115,16 @@ x,y: Posicion, en coordenadas de pantalla, en que se encuantra el cursor.
 
 void RatonMovido( int x, int y )
 {
-    if(estado == ponerCajas && leftPuls){
-        vCajones[ultCajon].Rx= ((x/anchoVentana-0.5)*ventanaMundoParalela) + origenXVentanaMundoParalelo;
-        vCajones[ultCajon].Rz= ((y/altoVentana-0.5)*ventanaMundoParalela)* altoVentana /anchoVentana- origenYVentanaMundoParalelo;
-        glutPostRedisplay();
+    switch (estado)
+    {
+    case ponerCajas:
+        if(leftPuls){
+            vCajones[ultCajon].Rx= ((x/anchoVentana-0.5)*ventanaMundoParalela) + origenXVentanaMundoParalelo;
+            vCajones[ultCajon].Rz= ((y/altoVentana-0.5)*ventanaMundoParalela)* altoVentana /anchoVentana- origenYVentanaMundoParalelo;
+            glutPostRedisplay();
+        }
+    break;
     }
+
+
 }

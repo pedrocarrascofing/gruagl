@@ -27,10 +27,6 @@ Queda prohibido cobrar canon por la copia de este software
 
 */
 
-/*
-  Commit de prueba
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -41,7 +37,7 @@ Queda prohibido cobrar canon por la copia de este software
 #include "grua.h"
 
 int COLORGRUA=0;
-float aux, a, b, c, x;
+float rad, a, b, c, x;
 
 
 /**	void initModel()
@@ -58,11 +54,26 @@ void initModel()
 **/
 grua.angY=15;
 grua.angZ=50;
+//Cabina
+grua.xCabina=7;
+grua.zCabina=7;
+grua.yCabina=3;
+//Base
+grua.xBase=7;
+grua.yBase=1;
+grua.zBase=7;
+
+//Patas
+grua.lPata=10;
+
+grua.yBaseGiro=1;
+
 grua.lCuerda=15;
-grua.longBrazo=15;
-grua.longTorre=10;
-grua.tensorTrasero= sqrt(grua.longTorre*grua.longTorre + 3.5*3.5);
-grua.tensorTraseroAng=(asin(10/grua.tensorTrasero))*180/M_PI;
+grua.lGancho=1;
+grua.longBrazo=17;
+grua.longTorre=15;
+grua.tensorTrasero= sqrt(grua.longTorre*grua.longTorre + (grua.xCabina/2)*(grua.xCabina/2));
+grua.tensorTraseroAng=(asin(grua.longTorre/grua.tensorTrasero))*180/M_PI;
 grua.tensorDelantero;
 grua.cabinaSt=0;
 grua.cabinaSp=1;
@@ -89,9 +100,25 @@ for(a=0; a<MaxCajones; a++)
 ultCajon=-1;
 
 /**
+    Cajón Grua
+**/
+{
+cajonGrua.id=1;
+cajonGrua.Rx=0;
+cajonGrua.Ry=0;
+cajonGrua.Rz=0;
+cajonGrua.lx=2;
+cajonGrua.ly=1;
+cajonGrua.lz=2;
+cajonGrua.color=marron;
+}
+
+/**
     Pulsación no mantenida
 **/
 leftPuls=0;
+
+cajaSeleccionada=-1;
 
 
 /**
@@ -151,7 +178,7 @@ void Dibuja( void )
    glLightfv( GL_LIGHT0, GL_POSITION, pos );	// Declaracion de luz. Colocada aqui esta fija en la escena
    ejes(3);	// Dibuja los ejes
 
-// Dibuja el suelo
+    // Dibuja el suelo
 
     glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,color[verde]);
     glTranslatef(0,-0.5,0);
@@ -168,19 +195,19 @@ void Dibuja( void )
 
         /*Pata1*/
         glTranslatef(-2.5,0,-2.5);
-        creaEstructura(10,1,1,10);
+        creaEstructura(grua.lPata,1,1,grua.lPata);
 
         /*Pata2*/
         glTranslatef(5,0,0);
-        creaEstructura(10,1,1,10);
+        creaEstructura(grua.lPata,1,1,grua.lPata);
 
         /*Pata3*/
         glTranslatef(0,0,5);
-        creaEstructura(10,1,1,10);
+        creaEstructura(grua.lPata,1,1,grua.lPata);
 
         /*Pata4*/
         glTranslatef(-5,0,0);
-        creaEstructura(10,1,1,10);
+        creaEstructura(grua.lPata,1,1,grua.lPata);
     glPopMatrix();
     }
 
@@ -189,13 +216,13 @@ void Dibuja( void )
     glPushMatrix();
         /*BaseA*/
         glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,color[gris]);
-        glTranslatef(0,10,0);
-        caja(7,1,7);
+        glTranslatef(0,grua.lPata,0);
+        caja(grua.xBase,grua.yBase,grua.zBase);
 
         /*BaseGiro*/
         glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,color[verde]);
-        glTranslatef(0,1,0);
-        falsoCilindro(1,2.2);
+        glTranslatef(0,grua.yBase,0);
+        falsoCilindro(grua.yBaseGiro,2.2);
     glPopMatrix();
     }
 
@@ -204,24 +231,24 @@ void Dibuja( void )
 	{
     glPushMatrix();
         /*Situación*/
-        glTranslatef(0,12,0);
+        glTranslatef(0,grua.lPata+grua.yBase+grua.yBaseGiro,0);
         glRotatef(grua.angY,0,1,0);
 
         /*Cabina*/
         glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,color[gris]);
-        caja(7,3,7);
+        caja(grua.xCabina,grua.yCabina,grua.zCabina);
 
         /*Torre*/
         glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,color[rojo]);
             glPushMatrix();
-            glTranslatef(0,3,0);
-            creaTorre(grua.longTorre,2,2,10);
+            glTranslatef(0,grua.yCabina,0);
+            creaTorre(grua.longTorre,2,2,grua.longTorre);
         glPopMatrix();
 
         /*Tensor Trasero*/
         glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,color[naranja]);
         glPushMatrix();
-            glTranslatef(-3.5,3,0);
+            glTranslatef(-grua.xCabina/2,grua.yCabina,0);
             glRotatef(grua.tensorTraseroAng-90,0,0,1);
             falsoCilindro(grua.tensorTrasero,0.1);
         glPopMatrix();
@@ -229,14 +256,14 @@ void Dibuja( void )
         /*Brazo*/
         glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,color[rojo]);
         glPushMatrix();
-            aux=(grua.angZ*M_PI/180);
-            a=3.5+grua.longBrazo*cos(aux);
-            b=grua.longBrazo*sin(aux);
-            c=13-b;
+            rad=(grua.angZ*M_PI/180);
+            a=grua.xCabina/2+grua.longBrazo*cos(rad);
+            b=grua.longBrazo*sin(rad);
+            c=grua.longTorre+grua.yCabina-b;
             glTranslatef(a,b,0);
             glRotatef(180,0,1,0);
             glRotatef(-(90+grua.angZ),0,0,1);
-            creaBrazo(grua.longBrazo,1,15);
+            creaBrazo(grua.longBrazo,1,grua.longBrazo);
         glPopMatrix();
 
         /*Tensor Delantero*/
@@ -249,13 +276,16 @@ void Dibuja( void )
             falsoCilindro(grua.tensorDelantero,0.1);
         glPopMatrix();
 
-        /*Cuerda + gancho*/
+        /*Cuerda + gancho + cajonFicticio*/
         glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,color[violeta]);
         glPushMatrix();
             glTranslatef(a,b-grua.lCuerda,0);
             falsoCilindro(grua.lCuerda,0.05);
             glRotatef(180,0,1,0);
-            creaGancho(1.0);
+            creaGancho(grua.lGancho);
+            glTranslatef(0,-cajonGrua.ly-grua.lGancho,0);
+            caja(cajonGrua.lx,cajonGrua.ly,cajonGrua.lz);
+
         glPopMatrix();
     glPopMatrix();	//Situación General
 	}
@@ -263,18 +293,19 @@ void Dibuja( void )
     /*Dibujar Cajas */
     {
     int a;
-    for(a=0; a<MaxCajones && vCajones[a].id!=-1; a++){
-        glLoadName(a);
-        glPushMatrix();
-            /*Situación*/
-            glTranslatef(vCajones[a].Rx,vCajones[a].Ry,vCajones[a].Rz);
-            //glRotatef(ang,0,1,0);
+    for(a=0; a<MaxCajones; a++)
+        if(vCajones[a].id!=-1){
+            glLoadName(a);
+            glPushMatrix();
+                /*Situación*/
+                glTranslatef(vCajones[a].Rx,vCajones[a].Ry,vCajones[a].Rz);
+                //glRotatef(ang,0,1,0);
 
-            /*Caja*/
-            glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,color[vCajones[a].color]);
-            caja(vCajones[a].lx,vCajones[a].ly,vCajones[a].lz);
-        glPopMatrix();
-    }
+                /*Caja*/
+                glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,color[vCajones[a].color]);
+                caja(vCajones[a].lx,vCajones[a].ly,vCajones[a].lz);
+            glPopMatrix();
+        }
     }
 
     /***************************************/
@@ -292,7 +323,7 @@ Procedimiento de fondo. Es llamado por glut cuando no hay eventos pendientes.
 **/
 void idle()
 {
-    if(grua.brazoSt==1 && grua.angZ<45)
+    if(grua.brazoSt==1 && b<(grua.longTorre+grua.yCabina-1) && grua.angZ < 80 )
         grua.angZ+=grua.brazoSp;
     else if(grua.brazoSt==-1 && grua.angZ>0)
         grua.angZ-=grua.brazoSp;
@@ -314,6 +345,8 @@ void idle()
 
 /**
     Función Pick
+    Devuelve el índice que ocupa la caja en el vector
+    de cajas vCajones o -1 si no se selecciona ninguna caja
 **/
 int pick(int x, int y)
 {
@@ -340,15 +373,11 @@ int pick(int x, int y)
     //Hits contiene el nº de objetos que han caido en la seleccion???
     hits=glRenderMode(GL_RENDER);
 
-    printf("Contenido de hits %i\n",hits);
-    int i, aux;
-    for(i=3; i<hits*4; i+=4)
-    {
-        printf ("Contenido del buffer[%i]: %i\n",i, buff[i]);
+    printf("Contenido de hits %f\n",grua.longTorre);
+    int i, aux=-1;
+    for(i=hits*4-1; i>=0; i-=4)
         if(buff[i]!=-1)
             aux=buff[i];
-    }
-    printf("\n\n");
     return aux;
 }
 

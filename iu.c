@@ -126,29 +126,31 @@ if(gluiIsMouseOverIcon()) glui_iconFeedback();
 glutSwapBuffers();
 }
 
-/**	void seleccionColor( int boton, int estado, int x, int y)
+/**	void seleccionColor( int boton, int status, int x, int y)
 
 	Función de gestion de eventos de raton del icono de paleta de colores
 
 	Argumentos:
 	boton: Codigo glut del boton que ha manipulado el usuario.
-	estado: Estado en el que esta el boton que se ha pulsado.
+    status: Estado en el que esta el boton que se ha pulsado.
 	x,y: Posicion, en coordenadas de pantalla, en que se encuantra el cursor.
 
 	Efecto: Modifica la variable local color
 	
 **/
-void seleccionColor( int boton, int estado, int x, int y)
+void seleccionColor( int boton, int status, int x, int y)
 {
 int kx,ky,color;
 
-if(boton== GLUT_LEFT_BUTTON && estado == GLUT_DOWN) {
+if(boton== GLUT_LEFT_BUTTON && status == GLUT_DOWN) {
 	kx= (x-6)/18;
 	ky= (y-6)/18;
 	if(kx<0 || ky<0||kx>2||ky>2) return;
 	color=kx+(2-ky)*3;
 
 // ------------ Inserta codigo de asignación de color aqui
+    estado = pintandoCajas;
+    colorActivo=color;
 
 	gluiPostRedisplay();
 	}

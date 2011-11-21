@@ -81,7 +81,7 @@ posicion en la matriz color.
 
 //========================================  ESTRUCTURAS DE DATOS ==========================================
 
-typedef enum {neutro,paseando,vistaArriba,ponerCajas} ESTADO;
+typedef enum {neutro,paseando,vistaArriba,ponerCajas, pintandoCajas, enganchando, soltando} ESTADO;
 
 
 typedef enum{ SALIR,ENGANCHAR, DESENGANCHAR, ROTARCAJA, MOVERCAJA,
@@ -91,7 +91,20 @@ typedef enum{ SALIR,ENGANCHAR, DESENGANCHAR, ROTARCAJA, MOVERCAJA,
 typedef struct{
     float angY;     // Ángulo de giro de la base
     float angZ;     // Ángulo de giro del brazo.
+
+    float xCabina;  // Dimensión X de la cabina
+    float yCabina;  // Dimensión Y de la cabina
+    float zCabina;  // Dimensión Z de la cabina
+
+    float yBase;    // Dimensión Y de la base
+    float xBase;    // Dimensión X de la base
+    float zBase;    // Dimensión Z de la base
+
+    float yBaseGiro;// Dimensión Y de la base de giro
+
+    float lPata;    // Longitud de las patas de la base
     float lCuerda;  // Longitud de la cuerda
+    float lGancho;  // Longitud del gancho.
     float tensorTrasero;        //Longitud del tensor trasero
     float tensorTraseroAng;     //Angulo del tensor trasero en grados
     float tensorDelantero;      //Longitud del tensor delantero
@@ -137,12 +150,30 @@ CAJA vCajones[MaxCajones];
 int ultCajon;
 
 /**
+    Caja seleccionad será una variable global que tendrá el indice
+    de la última caja seleccionada para el vector vCajones
+**/
+int cajaSeleccionada;
+
+/**
+    Cajon que permanecerá enganchado a la pluma de la grua para
+    crear el efecto de que la caja es cogida o no.
+**/
+CAJA cajonGrua;
+
+/**
     Variable que controla cuando el botón izquierdo del ratón
     ha sido pulsado y mantenido.
     Si 0 --> No es mantenido
     Si 1 --> Es mantenido
 **/
 int leftPuls;
+
+/**
+    colorActivo contendrá el último color seleccionado en la paleta
+    de colores. Variable Global.
+**/
+int colorActivo;
 
 
 
