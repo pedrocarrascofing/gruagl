@@ -89,6 +89,7 @@ opcion del menu. El parametro contiene el identificador de la opcion
     break;
    case DESENGANCHAR:
         estado = soltando;
+        soltarCaja();
         gluiOutput( "Se ha cambiado a soltar");
     break;
        

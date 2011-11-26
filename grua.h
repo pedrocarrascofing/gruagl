@@ -128,7 +128,7 @@ typedef struct{
     float cabinaSp; //Velocidad de giro de la cabina
 
 } GRUA;
-GRUA grua;
+ambito GRUA grua;
    
 typedef struct{
     int id;    //Identificador del cajon. Si -1 --> No dibujado
@@ -139,6 +139,7 @@ typedef struct{
     float ly;   //Longitud de la caja en x
     float lz;   //Longitud de la caja en x
     int color;  //Color para la caja
+    float angY;  //Angulo de giro en Y de la caja
 } CAJA;
 
 /**
@@ -176,6 +177,22 @@ int leftPuls;
 int colorActivo;
 
 
+/**
+    Soltar caja
+**/
+void soltarCaja();
+
+
+/**
+   Variables trigonometricas
+**/
+float radZ, radY, proy_x, trig_b, trig_c;
+
+/**
+   Esta variable controla la distancia permitida para
+   que un objeto pueda ser enganchado por la grua.
+**/
+float distPermitida;
 
 //================================================ VARIABLES  =============================================
 

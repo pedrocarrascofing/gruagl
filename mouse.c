@@ -48,83 +48,95 @@ x,y: Posicion, en coordenadas de pantalla, en que se encuantra el cursor.
 
 **/
 
- void clickRaton( int boton, int status, int x, int y )
+void clickRaton( int boton, int status, int x, int y )
 {
-    int aux;
-    switch ( boton )
-    {
-        case GLUT_LEFT_BUTTON:
-            switch ( estado )
-            {
-             //Poner nueva caja
-            case ponerCajas:
-                if(ultCajon<MaxCajones){
-                    if(status == GLUT_DOWN){
-                        leftPuls=1;
-                        ultCajon++;
-                        vCajones[ultCajon].id=ultCajon;
-                    }else{
-                        leftPuls=0;
-                    }
-                    vCajones[ultCajon].Rx= ((x/anchoVentana-0.5)*ventanaMundoParalela) + origenXVentanaMundoParalelo;
-                    vCajones[ultCajon].Rz= ((y/altoVentana-0.5)*ventanaMundoParalela)* altoVentana /anchoVentana- origenYVentanaMundoParalelo;                    
-                    glutPostRedisplay();
-                }
-            break;
-
-            // Pintar la que se seleccione con el raton
-            case pintandoCajas:
-                aux=pick(x,y);
-                if(aux>-1 && aux<MaxCajones)
-                    vCajones[aux].color=colorActivo;
-            break;
-
-            // Enganchar la caja que se seleccione con el raton
-            case enganchando:
-            break;
-
-            // Desenganchar la caja si se encuentra alguan enganchada
-            case soltando:
-            break;
-
-            //Seleccionar Cajas
-                /*
-            else if(status == GLUT_DOWN && estado != ponerCajas)
-            {
-                aux=pick(x,y);
-                if(aux>-1 && aux<MaxCajones)
-                    vCajones[aux].id=-1;
+   int aux=0;
+   float pluma_x=0, pluma_y=0, pluma_z=0, distancia=0;
+   switch ( boton )
+   {
+   case GLUT_LEFT_BUTTON:
+      switch ( estado )
+      {
+      //Poner nueva caja
+      case ponerCajas:
+         if(ultCajon<MaxCajones){
+            if(status == GLUT_DOWN){
+               leftPuls=1;
+               ultCajon++;
+               vCajones[ultCajon].id=ultCajon;
+               vCajones[ultCajon].Rx= ((x/anchoVentana-0.5)*ventanaMundoParalela) + origenXVentanaMundoParalelo;
+               vCajones[ultCajon].Rz= ((y/altoVentana-0.5)*ventanaMundoParalela)* altoVentana /anchoVentana- origenYVentanaMundoParalelo;
+            }else{
+               leftPuls=0;
             }
-            */
 
-            } //End switch interno
+            glutPostRedisplay();
+         }
+         break;
 
-        break; // End case GLUT_LEFT_BUTTON:
-    }
+      // Pintar la que se seleccione con el raton
+      case pintandoCajas:
+         if(status == GLUT_DOWN){
+            aux=pick(x,y);
+            if(aux>-1 && aux<MaxCajones)
+               vCajones[aux].color=colorActivo;
+         }
+         break;
+
+      // Enganchar la caja que se seleccione con el raton
+      case enganchando:
+         if(status == GLUT_DOWN && cajonGrua.id==-1){
+            cajaSeleccionada=pick(x,y);
+
+            if(cajaSeleccionada>-1 && cajaSeleccionada<MaxCajones)
+            {
+               radY=(grua.angY*M_PI/180);
+               pluma_x=abs((grua.longBrazo + grua.xCabina/2)*cos(radY));
+               pluma_z=abs((grua.longBrazo + grua.xCabina/2)*sin(radY));
+               radZ=(grua.angZ*M_PI/180);
+               pluma_y=abs(grua.longBrazo*sin(radZ));
+               pluma_y += grua.lPata+grua.yBase+grua.yBaseGiro-grua.lCuerda-grua.lGancho;
+
+               distancia=sqrt( (pluma_x-vCajones[cajaSeleccionada].Rx)*(pluma_x-vCajones[cajaSeleccionada].Rx)
+                             + (pluma_y-vCajones[cajaSeleccionada].Ry)*(pluma_y-vCajones[cajaSeleccionada].Ry)
+                             + (pluma_z-vCajones[cajaSeleccionada].Rz)*(pluma_z-vCajones[cajaSeleccionada].Rz));
+
+               if(distancia <= distPermitida)
+               {
+                  cajonGrua.color=vCajones[cajaSeleccionada].color;
+                  cajonGrua.id=vCajones[cajaSeleccionada].id;
+                  vCajones[cajaSeleccionada].id=-1;
+               }
+            }
+         }
+         break;
+
+      case soltando:
+         /* Desenganchar la caja si se encuentra alguan enganchada
+         En entradaMenu se llama a sotarCaja(), ya que despues de seleccionar
+         la opción no es necesario clicar en el escenario. */
+         break;
+
+      } //End switch interno
+
+      break; // End case GLUT_LEFT_BUTTON:
+   }
 }
 
 /**	void RatonMovido( int x, int y )
-
 Procedimiento para gestionar los eventos de movimiento del raton.
-
-Argumentos:
-
-x,y: Posicion, en coordenadas de pantalla, en que se encuantra el cursor.
-
+Argumentos: x,y: Posicion, en coordenadas de pantalla, en que se encuantra el cursor.
 **/
-
 void RatonMovido( int x, int y )
 {
-    switch (estado)
-    {
-    case ponerCajas:
-        if(leftPuls){
-            vCajones[ultCajon].Rx= ((x/anchoVentana-0.5)*ventanaMundoParalela) + origenXVentanaMundoParalelo;
-            vCajones[ultCajon].Rz= ((y/altoVentana-0.5)*ventanaMundoParalela)* altoVentana /anchoVentana- origenYVentanaMundoParalelo;
-            glutPostRedisplay();
-        }
-    break;
-    }
-
-
+   switch (estado)
+   {
+   case ponerCajas:
+      if(leftPuls){
+         vCajones[ultCajon].Rx= ((x/anchoVentana-0.5)*ventanaMundoParalela) + origenXVentanaMundoParalelo;
+         vCajones[ultCajon].Rz= ((y/altoVentana-0.5)*ventanaMundoParalela)* altoVentana /anchoVentana- origenYVentanaMundoParalelo;
+         glutPostRedisplay();
+      }
+      break;
+   }
 }

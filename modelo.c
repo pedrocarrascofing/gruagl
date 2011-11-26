@@ -37,7 +37,7 @@ Queda prohibido cobrar canon por la copia de este software
 #include "grua.h"
 
 int COLORGRUA=0;
-float rad, a, b, c, x;
+
 
 
 /**	void initModel()
@@ -70,7 +70,7 @@ grua.yBaseGiro=1;
 
 grua.lCuerda=15;
 grua.lGancho=1;
-grua.longBrazo=17;
+grua.longBrazo=20;
 grua.longTorre=15;
 grua.tensorTrasero= sqrt(grua.longTorre*grua.longTorre + (grua.xCabina/2)*(grua.xCabina/2));
 grua.tensorTraseroAng=(asin(grua.longTorre/grua.tensorTrasero))*180/M_PI;
@@ -80,7 +80,7 @@ grua.cabinaSp=1;
 grua.brazoSt=0;
 grua.brazoSp=0.2;
 grua.plumaSt=0;
-grua.plumaSp=0.05;
+grua.plumaSp=0.025;
 
 /**
     Vector de cajones y valores iniciales
@@ -88,14 +88,15 @@ grua.plumaSp=0.05;
 int a=0;
 for(a=0; a<MaxCajones; a++)
 {
-    vCajones[a].id=-1;
-    vCajones[a].Rx=10;
-    vCajones[a].Ry=0;
-    vCajones[a].Rz=10;
-    vCajones[a].lx=2;
-    vCajones[a].ly=1;
-    vCajones[a].lz=2;
-    vCajones[a].color=marron;
+   vCajones[a].id=-1;
+   vCajones[a].Rx=10;
+   vCajones[a].Ry=0;
+   vCajones[a].Rz=10;
+   vCajones[a].lx=2;
+   vCajones[a].ly=1;
+   vCajones[a].lz=2;
+   vCajones[a].color=marron;
+   vCajones[a].angY=0;
 }
 ultCajon=-1;
 
@@ -103,7 +104,7 @@ ultCajon=-1;
     Cajón Grua
 **/
 {
-cajonGrua.id=1;
+cajonGrua.id=-1;
 cajonGrua.Rx=0;
 cajonGrua.Ry=0;
 cajonGrua.Rz=0;
@@ -111,6 +112,7 @@ cajonGrua.lx=2;
 cajonGrua.ly=1;
 cajonGrua.lz=2;
 cajonGrua.color=marron;
+cajonGrua.angY=0;
 }
 
 /**
@@ -120,7 +122,19 @@ leftPuls=0;
 
 cajaSeleccionada=-1;
 
+/**
+   Variables trigonometricas
+**/
+radZ=0;
+radY=0;
+proy_x=0;
+trig_b=0;
+trig_c=0;
 
+/**
+   Distancia para enganchar
+**/
+distPermitida=7;
 /**
 	Definicion de los colores usados.
 **/
@@ -256,11 +270,11 @@ void Dibuja( void )
         /*Brazo*/
         glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,color[rojo]);
         glPushMatrix();
-            rad=(grua.angZ*M_PI/180);
-            a=grua.xCabina/2+grua.longBrazo*cos(rad);
-            b=grua.longBrazo*sin(rad);
-            c=grua.longTorre+grua.yCabina-b;
-            glTranslatef(a,b,0);
+            radZ=(grua.angZ*M_PI/180);
+            proy_x=grua.xCabina/2+grua.longBrazo*cos(radZ);
+            trig_b=grua.longBrazo*sin(radZ);
+            trig_c=grua.longTorre+grua.yCabina-trig_b;
+            glTranslatef(proy_x,trig_b,0);
             glRotatef(180,0,1,0);
             glRotatef(-(90+grua.angZ),0,0,1);
             creaBrazo(grua.longBrazo,1,grua.longBrazo);
@@ -269,23 +283,32 @@ void Dibuja( void )
         /*Tensor Delantero*/
         glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,color[naranja]);
         glPushMatrix();
-            glTranslatef(a,b,0);
-            grua.tensorDelantero=sqrt(a*a+c*c);
-            grua.tensorDelanteroAng=asin(a/grua.tensorDelantero)*180/M_PI;
+            glTranslatef(proy_x,trig_b,0);
+            grua.tensorDelantero=sqrt(proy_x*proy_x+trig_c*trig_c);
+            grua.tensorDelanteroAng=asin(proy_x/grua.tensorDelantero)*180/M_PI;
             glRotatef(grua.tensorDelanteroAng,0,0,1);
             falsoCilindro(grua.tensorDelantero,0.1);
         glPopMatrix();
 
         /*Cuerda + gancho + cajonFicticio*/
-        glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,color[violeta]);
-        glPushMatrix();
-            glTranslatef(a,b-grua.lCuerda,0);
-            falsoCilindro(grua.lCuerda,0.05);
-            glRotatef(180,0,1,0);
-            creaGancho(grua.lGancho);
-            glTranslatef(0,-cajonGrua.ly-grua.lGancho,0);
-            caja(cajonGrua.lx,cajonGrua.ly,cajonGrua.lz);
 
+        glPushMatrix();
+            glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,color[violeta]);
+            glTranslatef(proy_x,trig_b-grua.lCuerda,0);
+            //Cuerda
+            falsoCilindro(grua.lCuerda,0.05);
+            glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,color[rojo]);
+            glRotatef(180,0,1,0);
+            //Gancho
+            creaGancho(grua.lGancho+0.25); // +0.25 para ajustar un pequeño error.
+
+            //Cajon Ficticio
+            if(cajonGrua.id!=-1)
+            {                
+                glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,color[cajonGrua.color]);
+                glTranslatef(0,-cajonGrua.ly-grua.lGancho,0);
+                caja(cajonGrua.lx,cajonGrua.ly,cajonGrua.lz);
+            }
         glPopMatrix();
     glPopMatrix();	//Situación General
 	}
@@ -299,7 +322,7 @@ void Dibuja( void )
             glPushMatrix();
                 /*Situación*/
                 glTranslatef(vCajones[a].Rx,vCajones[a].Ry,vCajones[a].Rz);
-                //glRotatef(ang,0,1,0);
+                glRotatef(vCajones[a].angY,0,1,0);
 
                 /*Caja*/
                 glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,color[vCajones[a].color]);
@@ -312,7 +335,6 @@ void Dibuja( void )
     glPopMatrix(); 		// Desapila la transformacion geometrica
     glLoadName(-1);
     glutSwapBuffers();	// Intercambia el buffer de dibujo y visualizacion
-
 }
 
 
@@ -323,16 +345,21 @@ Procedimiento de fondo. Es llamado por glut cuando no hay eventos pendientes.
 **/
 void idle()
 {
-    if(grua.brazoSt==1 && b<(grua.longTorre+grua.yCabina-1) && grua.angZ < 80 )
+    //Subida/Bajada brazo
+    if(grua.brazoSt==1 && trig_b<(grua.longTorre+grua.yCabina-1) && grua.angZ < 80)
         grua.angZ+=grua.brazoSp;
-    else if(grua.brazoSt==-1 && grua.angZ>0)
+    else if(grua.brazoSt==-1 && grua.angZ>0 &&
+           (grua.lCuerda+grua.lGancho+cajonGrua.ly)<(trig_b+grua.yBase+grua.yBaseGiro+grua.lPata))
         grua.angZ-=grua.brazoSp;
 
-    if(grua.plumaSt==1 && grua.lCuerda<b+11)
+    //Subida/Bajada Cuerda
+    //printf("%f, %f, %f\n\n", trib_c)
+    if(grua.plumaSt==1 && (grua.lCuerda+grua.lGancho+cajonGrua.ly)<(trig_b+grua.yBase+grua.yBaseGiro+grua.lPata))
         grua.lCuerda+=grua.plumaSp;
     else if(grua.plumaSt==-1 && grua.lCuerda>1)
         grua.lCuerda-=grua.plumaSp;
 
+    //Giro Cabina
     if(grua.cabinaSt==1)
         grua.angY+=grua.cabinaSp;
     else if(grua.cabinaSt==-1)
@@ -370,14 +397,37 @@ int pick(int x, int y)
     glLoadIdentity();
     fijaProyeccion();
 
-    //Hits contiene el nº de objetos que han caido en la seleccion???
+    //Hits contiene el nº de objetos que han caido en la seleccion
     hits=glRenderMode(GL_RENDER);
 
-    printf("Contenido de hits %f\n",grua.longTorre);
     int i, aux=-1;
-    for(i=hits*4-1; i>=0; i-=4)
-        if(buff[i]!=-1)
-            aux=buff[i];
+    float zmin, zmax, cercana=-1;
+
+    for (i=0; i< hits*4; i+=4)
+    {
+        zmin=-1*(float)buff[i+1]/0xFFFFFFFF;
+        //zmax=-1*(float)buff[i+2]/0xFFFFFFFF;
+        //printf("Buffer de %i:  %i -- %f -- %f -- %i\n", i, buff[i], zmin, zmax, buff[i+3]);
+        if(buff[i+3]!=-1 && zmin>cercana)
+        {
+            cercana=zmin;
+            aux=buff[i+3];
+        }
+    }
+    //printf ("\n_______________________%i_______________________%f______________________________________\n\n", aux, cercana);
     return aux;
+}
+
+void soltarCaja()
+{
+    if( cajonGrua.id!=-1){
+        //radZ=(grua.angZ*M_PI/180);
+        //a=grua.xCabina/2+grua.longBrazo*cos(radZ);
+        vCajones[cajaSeleccionada].id=cajonGrua.id;
+        vCajones[cajaSeleccionada].Rx=proy_x*cos(grua.angY*M_PI/180);
+        vCajones[cajaSeleccionada].Rz=-1*proy_x*sin(grua.angY*M_PI/180);
+        vCajones[cajaSeleccionada].angY=grua.angY;
+        cajonGrua.id=-1;
+    }
 }
 
