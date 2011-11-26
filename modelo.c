@@ -134,7 +134,7 @@ trig_c=0;
 /**
    Distancia para enganchar
 **/
-distPermitida=7;
+distPermitida=10;
 /**
 	Definicion de los colores usados.
 **/
@@ -353,7 +353,6 @@ void idle()
         grua.angZ-=grua.brazoSp;
 
     //Subida/Bajada Cuerda
-    //printf("%f, %f, %f\n\n", trib_c)
     if(grua.plumaSt==1 && (grua.lCuerda+grua.lGancho+cajonGrua.ly)<(trig_b+grua.yBase+grua.yBaseGiro+grua.lPata))
         grua.lCuerda+=grua.plumaSp;
     else if(grua.plumaSt==-1 && grua.lCuerda>1)
@@ -405,24 +404,19 @@ int pick(int x, int y)
 
     for (i=0; i< hits*4; i+=4)
     {
-        zmin=-1*(float)buff[i+1]/0xFFFFFFFF;
-        //zmax=-1*(float)buff[i+2]/0xFFFFFFFF;
-        //printf("Buffer de %i:  %i -- %f -- %f -- %i\n", i, buff[i], zmin, zmax, buff[i+3]);
+        zmin=-1*(float)buff[i+1]/0xFFFFFFFF; //zmax=-1*(float)buff[i+2]/0xFFFFFFFF;
         if(buff[i+3]!=-1 && zmin>cercana)
         {
             cercana=zmin;
             aux=buff[i+3];
         }
     }
-    //printf ("\n_______________________%i_______________________%f______________________________________\n\n", aux, cercana);
     return aux;
 }
 
 void soltarCaja()
 {
-    if( cajonGrua.id!=-1){
-        //radZ=(grua.angZ*M_PI/180);
-        //a=grua.xCabina/2+grua.longBrazo*cos(radZ);
+    if( cajonGrua.id!=-1){       
         vCajones[cajaSeleccionada].id=cajonGrua.id;
         vCajones[cajaSeleccionada].Rx=proy_x*cos(grua.angY*M_PI/180);
         vCajones[cajaSeleccionada].Rz=-1*proy_x*sin(grua.angY*M_PI/180);
