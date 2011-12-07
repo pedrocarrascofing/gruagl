@@ -52,7 +52,7 @@ void initModel()
 /**
     Valores iniciales para la grua
 **/
-grua.angY=15;
+grua.angY=-45;
 grua.angZ=50;
 //Cabina
 grua.xCabina=7;
@@ -97,6 +97,7 @@ for(a=0; a<MaxCajones; a++)
    vCajones[a].lz=2;
    vCajones[a].color=marron;
    vCajones[a].angY=0;
+   vCajones[a].angAux=0;
 }
 ultCajon=-1;
 
@@ -113,6 +114,7 @@ cajonGrua.ly=1;
 cajonGrua.lz=2;
 cajonGrua.color=marron;
 cajonGrua.angY=0;
+cajonGrua.angAux=0;
 }
 
 /**
@@ -135,6 +137,14 @@ trig_c=0;
    Distancia para enganchar
 **/
 distPermitida=10;
+
+/**
+   Movimineto y rotacion Cajas
+**/
+xRef=0;
+yRef=0;
+
+
 /**
 	Definicion de los colores usados.
 **/
@@ -300,13 +310,14 @@ void Dibuja( void )
             glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,color[rojo]);
             glRotatef(180,0,1,0);
             //Gancho
-            creaGancho(grua.lGancho+0.25); // +0.25 para ajustar un pequeño error.
+            creaGancho(grua.lGancho+0.3); // +0.25 para ajustar un pequeño error.
 
             //Cajon Ficticio
             if(cajonGrua.id!=-1)
             {                
                 glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,color[cajonGrua.color]);
                 glTranslatef(0,-cajonGrua.ly-grua.lGancho,0);
+                glRotatef(cajonGrua.angY,0,1,0);
                 caja(cajonGrua.lx,cajonGrua.ly,cajonGrua.lz);
             }
         glPopMatrix();
@@ -322,7 +333,7 @@ void Dibuja( void )
             glPushMatrix();
                 /*Situación*/
                 glTranslatef(vCajones[a].Rx,vCajones[a].Ry,vCajones[a].Rz);
-                glRotatef(vCajones[a].angY,0,1,0);
+                glRotatef(vCajones[a].angY+vCajones[a].angAux,0,1,0);
 
                 /*Caja*/
                 glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,color[vCajones[a].color]);
@@ -416,11 +427,24 @@ int pick(int x, int y)
 
 void soltarCaja()
 {
+    int i;
+    float aux_x, aux_z;
+
     if( cajonGrua.id!=-1){       
         vCajones[cajaSeleccionada].id=cajonGrua.id;
-        vCajones[cajaSeleccionada].Rx=proy_x*cos(grua.angY*M_PI/180);
-        vCajones[cajaSeleccionada].Rz=-1*proy_x*sin(grua.angY*M_PI/180);
-        vCajones[cajaSeleccionada].angY=grua.angY;
+        aux_x=(vCajones[cajaSeleccionada].Rx=proy_x*cos(grua.angY*M_PI/180));
+        aux_z=(vCajones[cajaSeleccionada].Rz=-1*proy_x*sin(grua.angY*M_PI/180));
+        vCajones[cajaSeleccionada].angY=cajonGrua.angY+grua.angY;
+        vCajones[cajaSeleccionada].Ry=0;
+        for(i=ultCajon;i>=0; i--)
+            if ( i!=cajaSeleccionada &&
+                 ((vCajones[i].Rz+vCajones[i].lz)> aux_z) && ((vCajones[i].Rz-vCajones[i].lz)<aux_z) &&
+                 ((vCajones[i].Rx+vCajones[i].lx)> aux_x) && ((vCajones[i].Rx-vCajones[i].lx)<aux_x) &&
+                 (vCajones[i].Ry>=vCajones[cajaSeleccionada].Ry) )
+            {
+                vCajones[cajaSeleccionada].Ry=vCajones[cajaSeleccionada].ly+vCajones[i].Ry;
+            }
+
         cajonGrua.id=-1;
     }
 }

@@ -62,7 +62,7 @@ posicion en la matriz color.
 #define amarillo 0
 #define gris 1
 #define rojo 2
-#define	marron 3
+#define marron 3
 #define celeste 4
 #define naranja 5
 #define verde 6
@@ -81,7 +81,7 @@ posicion en la matriz color.
 
 //========================================  ESTRUCTURAS DE DATOS ==========================================
 
-typedef enum {neutro,paseando,vistaArriba,ponerCajas, pintandoCajas, enganchando, soltando} ESTADO;
+typedef enum {neutro,paseando,vistaArriba,ponerCajas, pintandoCajas, enganchando, soltando, moviendoCaja, rotandoCaja} ESTADO;
 
 
 typedef enum{ SALIR,ENGANCHAR, DESENGANCHAR, ROTARCAJA, MOVERCAJA,
@@ -140,6 +140,7 @@ typedef struct{
     float lz;   //Longitud de la caja en x
     int color;  //Color para la caja
     float angY;  //Angulo de giro en Y de la caja
+    float angAux;
 } CAJA;
 
 /**
@@ -193,6 +194,17 @@ float radZ, radY, proy_x, trig_b, trig_c;
    que un objeto pueda ser enganchado por la grua.
 **/
 float distPermitida;
+
+/**
+   xRef yRef Necesarias para poder mover y rotar cajas
+**/
+float xRef, yRef, oldColor;
+
+/**
+  moverPermit es un flag que evita que una caja se mueva si
+  hay cajas encima de ella.
+**/
+char moverPermit;
 
 //================================================ VARIABLES  =============================================
 

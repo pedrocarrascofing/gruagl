@@ -92,6 +92,14 @@ opcion del menu. El parametro contiene el identificador de la opcion
         soltarCaja();
         gluiOutput( "Se ha cambiado a soltar");
     break;
+   case ROTARCAJA:
+        estado = rotandoCaja;
+        gluiOutput( "Se ha cambiado a rotar caja");
+    break;
+   case MOVERCAJA:
+        estado = moviendoCaja;
+        gluiOutput( "Se ha cambiado a mover caja");
+    break;
        
    case SALIR:
    	  exit(0);      // Salir del programa
@@ -122,6 +130,8 @@ void CreaMenu()
         glutAddMenuEntry("Colorear", PINTARCAJA);
         glutAddMenuEntry("Enganchar", ENGANCHAR);
         glutAddMenuEntry("Soltar", DESENGANCHAR);
+        glutAddMenuEntry("Mover", MOVERCAJA);
+        glutAddMenuEntry("Rotar", ROTARCAJA);
    	glutAddMenuEntry( "Exit", SALIR );
 
    	glutAttachMenu( GLUT_RIGHT_BUTTON );	// Indica que el boton derecho abre el menu.
