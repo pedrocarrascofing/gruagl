@@ -48,10 +48,10 @@ void printHelp(){
   	printf("h, H: Imprime informacion de ayuda \n");
   	printf("b,B: Hace que gire el brazo de la grua\n");
   	printf("a: Detiene el brazo de la grua\n");
-  	printf("p,P: Desplaza la pluma sobre el brazo\n");
-  	printf("o: Detiene la pluma\n");
-  	printf("g,G: Sube y baja el gancho\n");
-  	printf("f: Detiene el gancho\n");
+        printf("p,P: Sube y baja la cuerda\n");
+        printf("o: Detiene la cuerda\n");
+        printf("g,G: Sube y baja brazo de la grua\n");
+        printf("f: Detiene el brazo\n");
   	printf("\n");
 	
   	printf("2: Camara con proyeccion paralela mirando desde arriba \n");
@@ -173,10 +173,10 @@ void letra (unsigned char k, int x, int y)
   case 'a':
     grua.cabinaSt=0;
   break;
-  case'o':
+  case'f':
     grua.brazoSt=0;
   break;
-  case 'f':
+  case 'o':
     grua.plumaSt=0;
   break;
 
